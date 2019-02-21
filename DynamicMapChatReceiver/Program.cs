@@ -1,7 +1,6 @@
 ﻿using DynamicMapChatReceiver.Models;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using JintEngine = Jint.Engine;
@@ -38,8 +37,23 @@ namespace DynamicMapChatReceiver
                 var updateJson = await LoadStringAsync(updateUrl.ToString());
                 update = JsonConvert.DeserializeObject<UpdateModel>(updateJson);
 
-                Console.WriteLine(updateUrl.ToString());
-                Console.WriteLine($"{update.currentcount} {string.Join(", ", update.updates.Select(t => t.type))}");
+                foreach (var updateData in update.updates)
+                {
+                    switch (updateData.type)
+                    {
+                        case "tile": continue;
+                        case "playerjoin":
+                        case "playerquit":
+                            Console.WriteLine($"[{DateTime.Now:dd HH:mm:ss}] {updateData.type} {updateData.playerName}");
+                            break;
+                        case "chat":
+                            Console.WriteLine($"[{DateTime.Now:dd HH:mm:ss}] {updateData.playerName}({updateData.source}): {updateData.message}");
+                            break;
+                        default:
+                            Console.WriteLine($"[{DateTime.Now:dd HH:mm:ss}] {updateData.type}");
+                            break;
+                    }
+                }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(configuration.updaterate));
             }
