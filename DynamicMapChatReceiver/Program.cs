@@ -11,7 +11,15 @@ namespace DynamicMapChatReceiver
     {
         static void Main(string[] args)
         {
-            Run(args[0]).Wait();
+            try
+            {
+                Run(args[0]).Wait();
+            }
+            catch
+            {
+                Console.WriteLine("接続できませんでした");
+                Task.Delay(TimeSpan.FromSeconds(10)).Wait();
+            }
         }
 
         private static async Task Run(string url)
